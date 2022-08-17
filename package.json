@@ -1,0 +1,28 @@
+{
+    "name": "@frost/parser",
+    "version": "1.0.0",
+    "description": "CodeGen library that parses FrostSchema to FrostApp Implementation for the desired platform",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "gen-parser": "nearleyc frost.ne --out frost-parser.js",
+        "prestart": "npm run gen-parser",
+        "start": "node index.js"
+    },
+    "keywords": [
+        "FrostORM",
+        "Frost-ORM",
+        "orm",
+        "parser",
+        "firebase",
+        "firebaseDB",
+        "firebae-realtime-database",
+        "firebase-rtdb"
+    ],
+    "author": "Sami Mishal",
+    "license": "GPL-3.0",
+    "dependencies": {
+        "moo": "^0.5.1",
+        "nearley": "^2.20.1"
+    }
+}
