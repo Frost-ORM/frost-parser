@@ -1,0 +1,31 @@
+# #region type
+type 
+    -> "type" _ iden _ %lCurly %NL type_statments %NL %rCurly
+    {% BlockConverter %}
+
+type_statments
+    -> Pad[type_statment,_] | type_statments %NL Pad[type_statment,_]
+    {% StatementsCollapse %}
+
+type_statment 
+    -> iden _ data_type
+    {% StatementConverter %}
+
+# #endregion type
+
+# #region Enum
+enum 
+    -> "enum" _ iden _ %lCurly %NL enum_statments %NL %rCurly
+    {% BlockConverter %}
+
+enum_statments
+    -> Pad[enum_statment,_]
+    | enum_statments %NL Pad[enum_statment,_] 
+    {% StatementsCollapse %}
+
+
+enum_statment
+    -> iden _ value_assignment:?
+    {% StatementConverter %}
+
+# #endregion Enum   

@@ -4,47 +4,90 @@
 function id(x) { return x[0]; }
 
 const {lexer} = require('./lexer.js')
-const BlockConverter = (data)=>{
+const nullify= ()=>null
+const isNullOrUndefined= (x)=> x === null || x === undefined
+const isNotNullNorUndefined= (x)=> !isNullOrUndefined(x)
+const BlockConverter = (arr)=>{
     //let parts = data.filter((x)=> x  && (x?.type !== 'NL' && x?.type !== 'keyword' && x?.type !== 'lCurly'&& x?.type !== 'rCurly') )
+    let data = arr.filter(isNotNullNorUndefined)
     return {
         type:data[0].toString(),
-        name:data[2],
-        values:data[6],
+        name:data[1],
+        values:data[3],
+    };
+}
+const ModelBlockConverter = (arr)=>{
+    //let parts = data.filter((x)=> x  && (x?.type !== 'NL' && x?.type !== 'keyword' && x?.type !== 'lCurly'&& x?.type !== 'rCurly') )
+    let data = arr.filter(isNotNullNorUndefined)
+
+    return {
+        type:data[0].toString(),
+        name:data[1],
+        ...data[3],
     };
 }
 const StatementsCollapse = (data)=>{
     // return data.flatMap((x)=>Array.isArray(x)?x:[x]).filter(({type})=>type !== 'NL')
-    return [...data[0],data[2]]
+
+
+    // return [...data[0],data[2]].filter(Boolean)
+    let output = [...data[0]]
+    if(data[2]){output.push(data[2])}
+    return output.flatMap(x=>x)
 
 }
 
 const StatementConverter = (data)=>{
-    let arr = data.filter(Boolean)
+    let arr = data.filter(isNotNullNorUndefined)
     return {
         name:arr[0],
         value:arr[1]
     }
 }
 const ModelStatementConverter = (data)=>{
+    let arr = data.filter(isNotNullNorUndefined)
     return {
-        name:data[1],
-        value:data[3],
-        modifiers:data[5]
+        type:'property',
+        name:arr[0],
+        propertyType:{
+            ...arr[1],
+            name:arr[1]['dataType'],
+        },
+        modifiers:arr[2]
     }
+}
+const ModelStatementsGroup = (data)=>{
+    let output = {properties:[],pragmas:[]}
+    for(let statement of data[0]){
+        if(statement && statement.type)
+        switch(statement.type){
+            case 'pragma':
+                output.pragmas.push(statement)
+                break;
+            case 'property':
+                output.properties.push(statement)
+                break;
+        }
+    }
+    return output
 }
 const PaddedSpace = (data)=>data[1]
 const DoublePaddedSpace = (data)=>data[2]
 let count = 0;
+
+const GroupByType = ([data])=>{
+    let output = {}
+    for(let def of data){
+        if(def && def.type)
+        output[def.type] = [...(output[def.type]??[]),def]
+    }
+    return output
+}
+const first_id = ([a])=>a
+const first = ([a])=>[a]
 var grammar = {
     Lexer: lexer,
     ParserRules: [
-    {"name": "_$ebnf$1", "symbols": []},
-    {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "_", "symbols": ["_$ebnf$1"], "postprocess": function(d) {return null;}},
-    {"name": "__$ebnf$1", "symbols": ["wschar"]},
-    {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": function(d) {return null;}},
-    {"name": "wschar", "symbols": [/[ \t\n\v\f]/], "postprocess": id},
     {"name": "unsigned_int$ebnf$1", "symbols": [/[0-9]/]},
     {"name": "unsigned_int$ebnf$1", "symbols": ["unsigned_int$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "unsigned_int", "symbols": ["unsigned_int$ebnf$1"], "postprocess": 
@@ -161,52 +204,87 @@ var grammar = {
     {"name": "file$ebnf$2", "symbols": []},
     {"name": "file$ebnf$2", "symbols": ["file$ebnf$2", (lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "file", "symbols": ["file$ebnf$1", "defs", "file$ebnf$2"], "postprocess": PaddedSpace},
-    {"name": "defs", "symbols": ["def"]},
-    {"name": "defs", "symbols": ["defs", (lexer.has("NL") ? {type: "NL"} : NL), "def"], "postprocess": StatementsCollapse},
+    {"name": "defs", "symbols": ["_defs"], "postprocess": GroupByType},
+    {"name": "_defs", "symbols": ["def"]},
+    {"name": "_defs", "symbols": ["_defs", (lexer.has("NL") ? {type: "NL"} : NL), "def"], "postprocess": StatementsCollapse},
     {"name": "def", "symbols": ["model"], "postprocess": id},
     {"name": "def", "symbols": ["type"], "postprocess": id},
     {"name": "def", "symbols": ["enum"], "postprocess": id},
-    {"name": "model", "symbols": [{"literal":"model"}, "_", "iden", "_", (lexer.has("lCurly") ? {type: "lCurly"} : lCurly), (lexer.has("NL") ? {type: "NL"} : NL), "model_statments", (lexer.has("NL") ? {type: "NL"} : NL), (lexer.has("rCurly") ? {type: "rCurly"} : rCurly)], "postprocess": BlockConverter},
-    {"name": "model_statments", "symbols": ["model_statment"]},
-    {"name": "model_statments", "symbols": ["model_statments", (lexer.has("NL") ? {type: "NL"} : NL), "model_statment"], "postprocess": StatementsCollapse},
-    {"name": "model_statment", "symbols": ["_", "pragma", "_"], "postprocess": PaddedSpace},
-    {"name": "model_statment$ebnf$1", "symbols": []},
-    {"name": "model_statment$ebnf$1", "symbols": ["model_statment$ebnf$1", "modifiers"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "model_statment", "symbols": ["_", "iden", "_", "data_type", "_", "model_statment$ebnf$1"], "postprocess": ModelStatementConverter},
-    {"name": "modifiers", "symbols": ["modifier"]},
+    {"name": "model", "symbols": ["_", {"literal":"model"}, "_", "iden", "_", (lexer.has("lCurly") ? {type: "lCurly"} : lCurly), "NL", "model_statments", "NL", (lexer.has("rCurly") ? {type: "rCurly"} : rCurly)], "postprocess": ModelBlockConverter},
+    {"name": "model_statments", "symbols": ["_model_statments"], "postprocess": ModelStatementsGroup},
+    {"name": "_model_statments$macrocall$2", "symbols": ["model_statment"]},
+    {"name": "_model_statments$macrocall$3", "symbols": ["_"]},
+    {"name": "_model_statments$macrocall$1", "symbols": ["_model_statments$macrocall$3", "_model_statments$macrocall$2", "_model_statments$macrocall$3"], "postprocess": ([_,a,])=>a},
+    {"name": "_model_statments", "symbols": ["_model_statments$macrocall$1"]},
+    {"name": "_model_statments$macrocall$5", "symbols": ["model_statment"]},
+    {"name": "_model_statments$macrocall$6", "symbols": ["_"]},
+    {"name": "_model_statments$macrocall$4", "symbols": ["_model_statments$macrocall$6", "_model_statments$macrocall$5", "_model_statments$macrocall$6"], "postprocess": ([_,a,])=>a},
+    {"name": "_model_statments", "symbols": ["_model_statments", "NL", "_model_statments$macrocall$4"], "postprocess": StatementsCollapse},
+    {"name": "model_statment", "symbols": ["pragma"]},
+    {"name": "model_statment", "symbols": ["iden", "_", "data_type"], "postprocess": ModelStatementConverter},
+    {"name": "model_statment", "symbols": ["iden", "_", "data_type", "_", "modifiers"], "postprocess": ModelStatementConverter},
+    {"name": "modifiers", "symbols": ["modifier"], "postprocess": first},
     {"name": "modifiers", "symbols": ["modifiers", "__", "modifier"], "postprocess": StatementsCollapse},
     {"name": "modifier", "symbols": ["relation"], "postprocess": id},
-    {"name": "relation$ebnf$1", "symbols": ["args"], "postprocess": id},
-    {"name": "relation$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "relation", "symbols": [(lexer.has("annotate") ? {type: "annotate"} : annotate), {"literal":"Relation"}, (lexer.has("lParen") ? {type: "lParen"} : lParen), "_", "relation$ebnf$1", "_", (lexer.has("rParen") ? {type: "rParen"} : rParen)], "postprocess": 
+    {"name": "relation", "symbols": [(lexer.has("annotate") ? {type: "annotate"} : annotate), {"literal":"Relation"}, (lexer.has("lParen") ? {type: "lParen"} : lParen), "_", (lexer.has("rParen") ? {type: "rParen"} : rParen)], "postprocess": 
+        (data)=>({
+            type:"relation",
+            name:null,
+        })
+        },
+    {"name": "relation", "symbols": [(lexer.has("annotate") ? {type: "annotate"} : annotate), {"literal":"Relation"}, (lexer.has("lParen") ? {type: "lParen"} : lParen), "_", "args", "_", (lexer.has("rParen") ? {type: "rParen"} : rParen)], "postprocess": 
         (data)=>({
             type:"relation",
             name:data[4],
         })
             },
-    {"name": "type", "symbols": [{"literal":"type"}, "_", "iden", "_", (lexer.has("lCurly") ? {type: "lCurly"} : lCurly), (lexer.has("NL") ? {type: "NL"} : NL), "type_statments", (lexer.has("NL") ? {type: "NL"} : NL), (lexer.has("rCurly") ? {type: "rCurly"} : rCurly)], "postprocess": BlockConverter},
-    {"name": "type_statments", "symbols": ["type_statment"]},
-    {"name": "type_statments", "symbols": ["type_statments", (lexer.has("NL") ? {type: "NL"} : NL), "type_statment"], "postprocess": StatementsCollapse},
-    {"name": "type_statment", "symbols": ["_", "iden", "_", "data_type", "_"], "postprocess": StatementConverter},
-    {"name": "enum", "symbols": [{"literal":"enum"}, "_", "iden", "_", (lexer.has("lCurly") ? {type: "lCurly"} : lCurly), (lexer.has("NL") ? {type: "NL"} : NL), "enum_statments", (lexer.has("NL") ? {type: "NL"} : NL), (lexer.has("rCurly") ? {type: "rCurly"} : rCurly)], "postprocess": BlockConverter},
-    {"name": "enum_statments", "symbols": ["enum_statment"]},
-    {"name": "enum_statments", "symbols": ["enum_statments", (lexer.has("NL") ? {type: "NL"} : NL), "enum_statment"], "postprocess": StatementsCollapse},
+    {"name": "type", "symbols": ["_", {"literal":"type"}, "_", "iden", "_", (lexer.has("lCurly") ? {type: "lCurly"} : lCurly), "_", "NL", "type_statments", "NL", (lexer.has("rCurly") ? {type: "rCurly"} : rCurly), "_"], "postprocess": BlockConverter},
+    {"name": "type_statments$macrocall$2", "symbols": ["type_statment"]},
+    {"name": "type_statments$macrocall$3", "symbols": ["_"]},
+    {"name": "type_statments$macrocall$1", "symbols": ["type_statments$macrocall$3", "type_statments$macrocall$2", "type_statments$macrocall$3"], "postprocess": ([_,a,])=>a},
+    {"name": "type_statments", "symbols": ["type_statments$macrocall$1"]},
+    {"name": "type_statments$macrocall$5", "symbols": ["type_statment"]},
+    {"name": "type_statments$macrocall$6", "symbols": ["_"]},
+    {"name": "type_statments$macrocall$4", "symbols": ["type_statments$macrocall$6", "type_statments$macrocall$5", "type_statments$macrocall$6"], "postprocess": ([_,a,])=>a},
+    {"name": "type_statments", "symbols": ["type_statments", "NL", "type_statments$macrocall$4"], "postprocess": StatementsCollapse},
+    {"name": "type_statment", "symbols": ["iden", "_", "data_type"], "postprocess": StatementConverter},
+    {"name": "enum", "symbols": ["_", {"literal":"enum"}, "_", "iden", "_", (lexer.has("lCurly") ? {type: "lCurly"} : lCurly), "_", "NL", "enum_statments", "NL", (lexer.has("rCurly") ? {type: "rCurly"} : rCurly), "_"], "postprocess": BlockConverter},
+    {"name": "enum_statments$macrocall$2", "symbols": ["enum_statment"]},
+    {"name": "enum_statments$macrocall$3", "symbols": ["_"]},
+    {"name": "enum_statments$macrocall$1", "symbols": ["enum_statments$macrocall$3", "enum_statments$macrocall$2", "enum_statments$macrocall$3"], "postprocess": ([_,a,])=>a},
+    {"name": "enum_statments", "symbols": ["enum_statments$macrocall$1"]},
+    {"name": "enum_statments$macrocall$5", "symbols": ["enum_statment"]},
+    {"name": "enum_statments$macrocall$6", "symbols": ["_"]},
+    {"name": "enum_statments$macrocall$4", "symbols": ["enum_statments$macrocall$6", "enum_statments$macrocall$5", "enum_statments$macrocall$6"], "postprocess": ([_,a,])=>a},
+    {"name": "enum_statments", "symbols": ["enum_statments", "NL", "enum_statments$macrocall$4"], "postprocess": StatementsCollapse},
     {"name": "enum_statment$ebnf$1", "symbols": ["value_assignment"], "postprocess": id},
     {"name": "enum_statment$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "enum_statment", "symbols": ["_", "iden", "_", "enum_statment$ebnf$1"], "postprocess": StatementConverter},
-    {"name": "data_type$ebnf$1", "symbols": [(lexer.has("arrayMarker") ? {type: "arrayMarker"} : arrayMarker)], "postprocess": id},
-    {"name": "data_type$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "data_type", "symbols": ["iden", "data_type$ebnf$1"], "postprocess": 
+    {"name": "enum_statment", "symbols": ["iden", "_", "enum_statment$ebnf$1"], "postprocess": StatementConverter},
+    {"name": "data_type", "symbols": ["iden"], "postprocess": 
         (data)=>({
-            name:data[0],
-            isArray:data[1]?.type === 'arrayMarker',
-        
+            dataType:data[0],
+            isArray:false,
+            optional:false
+        })
+        },
+    {"name": "data_type", "symbols": ["iden", (lexer.has("arrayMarker") ? {type: "arrayMarker"} : arrayMarker)], "postprocess": 
+        (data)=>({
+            dataType:data[0],
+            isArray:true,
+            optional:false
+        })
+            },
+    {"name": "data_type", "symbols": ["data_type", {"literal":"?"}], "postprocess": 
+        (data)=>({
+            ...data[0],
+            optional:true
         })
             },
     {"name": "value_assignment", "symbols": [(lexer.has("assign") ? {type: "assign"} : assign), "_", "value"], "postprocess": 
         (data)=>{
-            let arr = data.filter(Boolean)
-            return arr[1]
+            // let arr = data.filter(isNotNullNorUndefined)
+            // return arr[1]
+            return data[2]
         }
         },
     {"name": "value", "symbols": ["string"], "postprocess": id},
@@ -219,11 +297,12 @@ var grammar = {
              },
     {"name": "string", "symbols": ["dqstring"], "postprocess": id},
     {"name": "string", "symbols": ["sqstring"], "postprocess": id},
-    {"name": "string", "symbols": ["bqstring"], "postprocess": id},
-    {"name": "pragma$ebnf$1", "symbols": ["args"], "postprocess": id},
-    {"name": "pragma$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "pragma", "symbols": ["pragma_marker", "iden", (lexer.has("lParen") ? {type: "lParen"} : lParen), "pragma$ebnf$1", (lexer.has("rParen") ? {type: "rParen"} : rParen)], "postprocess":  
-        ([type,name,_1,args,_2])=>({type,name,args})
+    {"name": "string", "symbols": ["btstring"], "postprocess": id},
+    {"name": "pragma", "symbols": ["pragma_marker", "iden", (lexer.has("lParen") ? {type: "lParen"} : lParen), "args", (lexer.has("rParen") ? {type: "rParen"} : rParen)], "postprocess":  
+        ([type,name,_1,args,_2],reject)=>({type,name,args})
+            },
+    {"name": "pragma", "symbols": ["pragma_marker", "iden", (lexer.has("lParen") ? {type: "lParen"} : lParen), "_", (lexer.has("rParen") ? {type: "rParen"} : rParen)], "postprocess":  
+        ([type,name,],reject)=>({type,name,args:null})
             },
     {"name": "args", "symbols": ["arg"]},
     {"name": "args", "symbols": ["args", {"literal":","}, "arg"], "postprocess": StatementsCollapse},
@@ -235,7 +314,12 @@ var grammar = {
     {"name": "named_args", "symbols": ["named_arg"]},
     {"name": "named_args", "symbols": ["named_args", {"literal":","}, "named_arg"], "postprocess": StatementsCollapse},
     {"name": "named_arg", "symbols": ["_", "iden", "_", {"literal":":"}, "_", "value", "_"], "postprocess": (args)=> ({name:args[1],value:args[5]})},
-    {"name": "pragma_marker", "symbols": [(lexer.has("annotate") ? {type: "annotate"} : annotate), (lexer.has("annotate") ? {type: "annotate"} : annotate)], "postprocess": ()=>"pragma"}
+    {"name": "pragma_marker", "symbols": [(lexer.has("pragma") ? {type: "pragma"} : pragma)], "postprocess": ()=>"pragma"},
+    {"name": "_$ebnf$1", "symbols": []},
+    {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", (lexer.has("WS") ? {type: "WS"} : WS)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "_", "symbols": ["_$ebnf$1"], "postprocess": nullify},
+    {"name": "__", "symbols": [(lexer.has("WS") ? {type: "WS"} : WS)], "postprocess": nullify},
+    {"name": "NL", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)], "postprocess": nullify}
 ]
   , ParserStart: "file"
 }

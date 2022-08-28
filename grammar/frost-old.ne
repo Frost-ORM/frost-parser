@@ -8,9 +8,22 @@ const BlockConverter = (data)=>{
         values:data[6],
     };
 }
+const ModelBlockConverter = (data)=>{
+    //let parts = data.filter((x)=> x  && (x?.type !== 'NL' && x?.type !== 'keyword' && x?.type !== 'lCurly'&& x?.type !== 'rCurly') )
+    return {
+        type:data[0].toString(),
+        name:data[2],
+        ...data[6],
+    };
+}
 const StatementsCollapse = (data)=>{
     // return data.flatMap((x)=>Array.isArray(x)?x:[x]).filter(({type})=>type !== 'NL')
-    return [...data[0],data[2]]
+
+
+    // return [...data[0],data[2]].filter(Boolean)
+    let output = [...data[0]]
+    if(data[2]){output.push(data[2])}
+    return output
 
 }
 
@@ -23,14 +36,39 @@ const StatementConverter = (data)=>{
 }
 const ModelStatementConverter = (data)=>{
     return {
+        type:'property',
         name:data[1],
-        value:data[3],
+        dataType:data[3],
         modifiers:data[5]
     }
+}
+const ModelStatementsGroup = (data)=>{
+    let output = {properties:[],pragmas:[]}
+    for(let statement of data[0]){
+        switch(statement.type){
+            case 'pragma':
+                output.pragmas.push(statement)
+                break;
+            case 'property':
+                output.properties.push(statement)
+                break;
+        }
+    }
+    return output
 }
 const PaddedSpace = (data)=>data[1]
 const DoublePaddedSpace = (data)=>data[2]
 let count = 0;
+
+const GroupByType = ([data])=>{
+    let output = {}
+    for(let def of data){
+        output[def.type] = [...(output[def.type]??[]),def]
+    }
+    return output
+}
+const first_id = ([a])=>a
+const first = ([a])=>[a]
 %}
 @lexer lexer
 @builtin "whitespace.ne" # `_` means arbitrary amount of whitespace
@@ -40,8 +78,9 @@ let count = 0;
 file
     -> %NL:* defs %NL:* {% PaddedSpace %}
 
-defs
-    -> def | defs %NL def
+defs -> _defs {% GroupByType %}
+_defs
+    -> def | _defs %NL def 
     {% StatementsCollapse %}
 
 
@@ -55,19 +94,20 @@ def
 # #region model
 model 
     -> "model" _ iden _ %lCurly %NL model_statments %NL %rCurly
-    {% BlockConverter %}
+    {% ModelBlockConverter %}
 
 model_statments
-    -> model_statment | model_statments %NL model_statment
-    {% StatementsCollapse %}
+    -> _model_statments {% ModelStatementsGroup %}
+
+_model_statments
+    -> model_statment | _model_statments %NL model_statment {% StatementsCollapse %}
 
 model_statment 
-    -> _ pragma _  {% PaddedSpace %}
-    | _ iden _ data_type _ modifiers:*
-    {% ModelStatementConverter %}
+    -> _ pragma _ {% PaddedSpace %}
+    | _ iden _ data_type _ modifiers:? {% ModelStatementConverter %}
 
 modifiers
-    -> modifier | modifiers __ modifier
+    -> modifier {% first %} | modifiers __ modifier
     {% StatementsCollapse %}
 
 modifier
@@ -112,7 +152,7 @@ enum_statments
 
 
 enum_statment
-    -> _ iden _ value_assignment:?
+    -> _ iden _ value_assignment:? _
     {% StatementConverter %}
 
 # #endregion Enum   
@@ -161,7 +201,7 @@ string
 pragma
     -> pragma_marker iden %lParen args:? %rParen
     {% 
-        ([type,name,_1,args,_2])=>({type,name,args})
+        ([type,name,_1,args,_2],reject)=>({type,name,args})
     %} 
 
 args
@@ -195,3 +235,6 @@ pragma_marker
     {% ()=>"pragma" %}
 # _ -> %WS:*
 # __ -> %WS:+
+# _comment_ -> _ %comment _ {% ()=>null %}
+# comment_ -> %comment _ {% ()=>null %}
+# _comment -> _ %comment  {% ()=>null %}
