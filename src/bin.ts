@@ -20,14 +20,14 @@ const argv = yargs
 				type: "string",
 				alias: "i",
 				default: DISPLAY_DEFAULT_INPUT,
-				describe: "Path (relative to CWD) of the frost schema.",
+				describe: "Path* of the frost schema. *(if path specified is relative then it should be relative to project directory)",
 			},
 			output: {
 				type: "string",
 				alias: "o",
 				default: DISPLAY_DEFAULT_OUTPUT,
 				describe:
-					"Output File Path (relative to CWD) of the generated client.\nThe output will be two files [`<FilePath>.js`,`<FilePath>.d.ts`]. \nExample:\n\tfilepath:'./src/frost/client'\n\tgenerated:[`./src/frost/client.js`,`./src/frost/client.d.ts`]",
+					"Output File Path* of the generated client.\nThe output will be two files [`<FilePath>.js`,`<FilePath>.d.ts`]. \nExample:\n\tfilepath:'./src/frost/client'\n\tgenerated:[`./src/frost/client.js`,`./src/frost/client.d.ts`]\n *(if path specified is relative then it should be relative to project directory)",
 			},
 			"output-same-location": {
 				type: "boolean",
@@ -44,7 +44,7 @@ const argv = yargs
 async function main() {
 	// console.log(argv)
 	let file: string =
-		argv.input === DISPLAY_DEFAULT_INPUT ? npmConfig?.frost?.schemaPath ?? DEFAULT_INPUT : argv.input;
+		argv.input === DISPLAY_DEFAULT_INPUT ? (npmConfig?.frost?.schema?.path ??npmConfig?.frost?.schemaPath ?? DEFAULT_INPUT): argv.input;
 	if (argv.jsonSchema) {
 		return parseToJsonSchema(file);
 	}

@@ -1,63 +1,65 @@
 {
-    "name": "@frost-orm/parser",
-    "version": "1.0.0",
-    "description": "CodeGen library that parses FrostSchema to FrostApp Implementation for the desired platform",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "files": [
-        "/dist"
-    ],
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "default": "./dist/index.js"
-        },
-        "./package.json": "./package.json"
+  "name": "@frost-orm/cli",
+  "version": "0.0.1",
+  "description": "CodeGen library that parses FrostSchema to FrostApp Implementation for the desired platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
-    "typesVersions": {
-        "*": {
-            "default": [
-                "dist/index.d.ts"
-            ]
-        }
-    },
-    "bin": {
-        "frost": "./dist/bin.js"
-    },
-    "scripts": {
-        "gen-parser": "nearleyc ./grammar/frost.ne --out .src/frost-parser.js",
-        "prestart": "npm run gen-parser",
-        "prepack": "npm run build",
-        "build": "tsc",
-        "start": "ts-node -P ./tsconfig.json src/index.ts",
-        "postinstall": "node dist/postinstall.js",
-        "postupdate": "node dist/postinstall.js",
-        "transpiler:test": "ts-node -P ./tsconfig.json src/transpiler/examples/index.ts",
-        "validator:test": "ts-node -P ./tsconfig.json src/validator/index.ts"
-    },
-    "keywords": [
-        "FrostORM",
-        "Frost-ORM",
-        "orm",
-        "parser",
-        "firebase",
-        "firebaseDB",
-        "firebase-realtime-database",
-        "firebase-rtdb"
-    ],
-    "author": {
-        "name": "Sami Mishal",
-        "email": "sami.mishal.1998@gmail.com"
-    },
-    "license": "GPL-3.0",
-    "dependencies": {
-        "moo": "^0.5.1",
-        "nearley": "^2.20.1",
-        "path": "^0.12.7",
-        "typescript": "^4.7.4",
-        "yargs": "^17.5.1"
-    },
-    "devDependencies": {
-        "@types/node": "^18.7.9"
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "default": [
+        "dist/index.d.ts"
+      ]
     }
+  },
+  "bin": {
+    "frost": "./dist/bin.js"
+  },
+  "scripts": {
+    "gen-parser": "nearleyc ./grammar/frost.ne --out ./src/frost-parser.js",
+    "prestart": "npm run gen-parser",
+    "prepack": "npm run build",
+    "postpack": "cp frost-orm-parser-*.tgz $NPM_REG/",
+    "build": "tsc",
+    "start": "ts-node -P ./tsconfig.json src/index.ts",
+    "postinstall": "node dist/postinstall.js",
+    "postupdate": "node dist/postinstall.js",
+    "transpiler:test": "ts-node -P ./tsconfig.json src/transpiler/examples/index.ts",
+    "validator:test": "ts-node -P ./tsconfig.json src/validator/index.ts",
+    "parser:test": "node src/test.js"
+  },
+  "keywords": [
+    "FrostORM",
+    "Frost-ORM",
+    "orm",
+    "parser",
+    "firebase",
+    "firebaseDB",
+    "firebase-realtime-database",
+    "firebase-rtdb"
+  ],
+  "author": {
+    "name": "Sami Mishal",
+    "email": "sami.mishal.1998@gmail.com"
+  },
+  "license": "GPL-3.0",
+  "dependencies": {
+    "moo": "^0.5.1",
+    "nearley": "^2.20.1",
+    "path": "^0.12.7",
+    "typescript": "^4.7.4",
+    "yargs": "^17.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.9"
+  }
 }

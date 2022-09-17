@@ -3,7 +3,7 @@ const moo = require("moo")
 module.exports.lexer = moo.compile({
     WS: /[ \t]+/,
     comment: /\/\/.*?$/,
-    keyword: ["model","type","Relation","enum"],
+    // keyword: ["model","type","Relation","enum"],
     pragma: '@@',
     annotate: '@',
     lCurly: '{',

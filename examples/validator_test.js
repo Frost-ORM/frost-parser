@@ -15,7 +15,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDelegatesMap = exports.ClubDelegate = exports.CourseDelegate = exports.ProfessorDelegate = exports.StudentDelegate = exports.SampleDelegate = exports.FrostModels = exports.DifficultyLevel = exports.ClubType = exports.SchoolYear = void 0;
+exports.getDelegatesMap = exports.ClubDelegate = exports.CourseDelegate = exports.ProfessorDelegate = exports.StudentDelegate = exports.FrostModels = exports.ClubType = exports.Duration = exports.DifficultyLevel = exports.SchoolYear = void 0;
 var frost_web_client_1 = require("@frost-orm/frost-web-client");
 var SchoolYear;
 (function (SchoolYear) {
@@ -24,12 +24,6 @@ var SchoolYear;
     SchoolYear["JUNIOR"] = "JUNIOR";
     SchoolYear["SENIOR"] = "SENIOR";
 })(SchoolYear = exports.SchoolYear || (exports.SchoolYear = {}));
-var ClubType;
-(function (ClubType) {
-    ClubType["STEM"] = "STEM";
-    ClubType["SPORTS"] = "SPORTS";
-    ClubType["CREATIVE"] = "CREATIVE";
-})(ClubType = exports.ClubType || (exports.ClubType = {}));
 var DifficultyLevel;
 (function (DifficultyLevel) {
     DifficultyLevel["INTRODUCTORY"] = "INTRODUCTORY";
@@ -37,34 +31,20 @@ var DifficultyLevel;
     DifficultyLevel["UPPER_INTERMEDIATE"] = "UPPER_INTERMEDIATE";
     DifficultyLevel["ADVANCED_PLACEMENT"] = "ADVANCED_PLACEMENT";
 })(DifficultyLevel = exports.DifficultyLevel || (exports.DifficultyLevel = {}));
+var Duration;
+(function (Duration) {
+    Duration[Duration["FULL_YEAR"] = 24] = "FULL_YEAR";
+    Duration[Duration["FULL_SEMESTER"] = 12] = "FULL_SEMESTER";
+    Duration[Duration["HALF_SEMESTER"] = 6] = "HALF_SEMESTER";
+})(Duration = exports.Duration || (exports.Duration = {}));
+var ClubType;
+(function (ClubType) {
+    ClubType["STEM"] = "STEM";
+    ClubType["SPORTS"] = "SPORTS";
+    ClubType["CREATIVE"] = "CREATIVE";
+})(ClubType = exports.ClubType || (exports.ClubType = {}));
 //export type ClubDelegate = FrostDelegate<ClubTypes>
 exports.FrostModels = {
-    "Sample": {
-        "path": "/testing/samples",
-        "name": "Sample",
-        "properties": [
-            {
-                "name": "name",
-                "type": "string",
-                "isArray": false,
-                "optional": true
-            },
-            {
-                "name": "year",
-                "type": "SchoolYear",
-                "isArray": false,
-                "optional": true
-            },
-            {
-                "name": "birthday",
-                "type": "Date",
-                "isArray": false,
-                "optional": true
-            }
-        ],
-        "relations": [],
-        "relationsNames": []
-    },
     "Student": {
         "path": "/testing/students",
         "name": "Student",
@@ -73,13 +53,13 @@ exports.FrostModels = {
                 "name": "name",
                 "type": "string",
                 "isArray": false,
-                "optional": true
+                "optional": false
             },
             {
                 "name": "year",
                 "type": "SchoolYear",
                 "isArray": false,
-                "optional": true
+                "optional": false
             },
             {
                 "name": "birthday",
@@ -88,16 +68,22 @@ exports.FrostModels = {
                 "optional": true
             },
             {
+                "name": "email",
+                "type": "string",
+                "isArray": false,
+                "optional": true
+            },
+            {
                 "name": "courses",
                 "type": "Course",
                 "isArray": true,
-                "optional": true
+                "optional": false
             },
             {
                 "name": "club",
                 "type": "Club",
                 "isArray": false,
-                "optional": true
+                "optional": false
             }
         ],
         "relations": [
@@ -123,13 +109,13 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "year",
                             "type": "SchoolYear",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "birthday",
@@ -138,16 +124,22 @@ exports.FrostModels = {
                             "optional": true
                         },
                         {
+                            "name": "email",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": true
+                        },
+                        {
                             "name": "courses",
                             "type": "Course",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "club",
                             "type": "Club",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 },
@@ -159,25 +151,37 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "level",
                             "type": "DifficultyLevel",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        },
+                        {
+                            "name": "duration",
+                            "type": "Duration",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "department",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
                         },
                         {
                             "name": "students",
                             "type": "Student",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "professor",
                             "type": "Professor",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 }
@@ -204,13 +208,13 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "year",
                             "type": "SchoolYear",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "birthday",
@@ -219,16 +223,22 @@ exports.FrostModels = {
                             "optional": true
                         },
                         {
+                            "name": "email",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": true
+                        },
+                        {
                             "name": "courses",
                             "type": "Course",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "club",
                             "type": "Club",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 },
@@ -240,19 +250,31 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        },
+                        {
+                            "name": "type",
+                            "type": "ClubType",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "roomId",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
                         },
                         {
                             "name": "members",
                             "type": "Student",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "supervisor",
                             "type": "Professor",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 }
@@ -271,37 +293,37 @@ exports.FrostModels = {
                 "name": "name",
                 "type": "string",
                 "isArray": false,
-                "optional": true
-            },
-            {
-                "name": "year",
-                "type": "SchoolYear",
-                "isArray": false,
-                "optional": true
-            },
-            {
-                "name": "birthday",
-                "type": "Date",
-                "isArray": false,
-                "optional": true
+                "optional": false
             },
             {
                 "name": "contactInfo",
                 "type": "ContactInfo",
                 "isArray": false,
-                "optional": true
+                "optional": false
+            },
+            {
+                "name": "department",
+                "type": "string",
+                "isArray": false,
+                "optional": false
+            },
+            {
+                "name": "email",
+                "type": "string",
+                "isArray": false,
+                "optional": false
             },
             {
                 "name": "courses",
                 "type": "Course",
                 "isArray": true,
-                "optional": true
+                "optional": false
             },
             {
                 "name": "club",
                 "type": "Club",
                 "isArray": false,
-                "optional": true
+                "optional": false
             }
         ],
         "relations": [
@@ -327,37 +349,37 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "year",
-                            "type": "SchoolYear",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "birthday",
-                            "type": "Date",
-                            "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "contactInfo",
                             "type": "ContactInfo",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        },
+                        {
+                            "name": "department",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "email",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
                         },
                         {
                             "name": "courses",
                             "type": "Course",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "club",
                             "type": "Club",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 },
@@ -369,25 +391,37 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "level",
                             "type": "DifficultyLevel",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        },
+                        {
+                            "name": "duration",
+                            "type": "Duration",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "department",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
                         },
                         {
                             "name": "students",
                             "type": "Student",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "professor",
                             "type": "Professor",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 }
@@ -414,37 +448,37 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "year",
-                            "type": "SchoolYear",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "birthday",
-                            "type": "Date",
-                            "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "contactInfo",
                             "type": "ContactInfo",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        },
+                        {
+                            "name": "department",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "email",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
                         },
                         {
                             "name": "courses",
                             "type": "Course",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "club",
                             "type": "Club",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 },
@@ -456,19 +490,31 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        },
+                        {
+                            "name": "type",
+                            "type": "ClubType",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "roomId",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
                         },
                         {
                             "name": "members",
                             "type": "Student",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "supervisor",
                             "type": "Professor",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 }
@@ -487,25 +533,37 @@ exports.FrostModels = {
                 "name": "name",
                 "type": "string",
                 "isArray": false,
-                "optional": true
+                "optional": false
             },
             {
                 "name": "level",
                 "type": "DifficultyLevel",
                 "isArray": false,
-                "optional": true
+                "optional": false
+            },
+            {
+                "name": "duration",
+                "type": "Duration",
+                "isArray": false,
+                "optional": false
+            },
+            {
+                "name": "department",
+                "type": "string",
+                "isArray": false,
+                "optional": false
             },
             {
                 "name": "students",
                 "type": "Student",
                 "isArray": true,
-                "optional": true
+                "optional": false
             },
             {
                 "name": "professor",
                 "type": "Professor",
                 "isArray": false,
-                "optional": true
+                "optional": false
             }
         ],
         "relations": [
@@ -524,6 +582,48 @@ exports.FrostModels = {
                 },
                 "relationType": "many_to_many",
                 "localModel": {
+                    "name": "Course",
+                    "path": "/testing/courses",
+                    "properties": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "level",
+                            "type": "DifficultyLevel",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "duration",
+                            "type": "Duration",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "department",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "students",
+                            "type": "Student",
+                            "isArray": true,
+                            "optional": false
+                        },
+                        {
+                            "name": "professor",
+                            "type": "Professor",
+                            "isArray": false,
+                            "optional": false
+                        }
+                    ]
+                },
+                "foreignModel": {
                     "name": "Student",
                     "path": "/testing/students",
                     "properties": [
@@ -531,13 +631,13 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "year",
                             "type": "SchoolYear",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "birthday",
@@ -546,46 +646,22 @@ exports.FrostModels = {
                             "optional": true
                         },
                         {
-                            "name": "courses",
-                            "type": "Course",
-                            "isArray": true,
-                            "optional": true
-                        },
-                        {
-                            "name": "club",
-                            "type": "Club",
-                            "isArray": false,
-                            "optional": true
-                        }
-                    ]
-                },
-                "foreignModel": {
-                    "name": "Course",
-                    "path": "/testing/courses",
-                    "properties": [
-                        {
-                            "name": "name",
+                            "name": "email",
                             "type": "string",
                             "isArray": false,
                             "optional": true
                         },
                         {
-                            "name": "level",
-                            "type": "DifficultyLevel",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "students",
-                            "type": "Student",
+                            "name": "courses",
+                            "type": "Course",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
-                            "name": "professor",
-                            "type": "Professor",
+                            "name": "club",
+                            "type": "Club",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 }
@@ -605,48 +681,6 @@ exports.FrostModels = {
                 },
                 "relationType": "one_to_many",
                 "localModel": {
-                    "name": "Professor",
-                    "path": "/testing/professors",
-                    "properties": [
-                        {
-                            "name": "name",
-                            "type": "string",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "year",
-                            "type": "SchoolYear",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "birthday",
-                            "type": "Date",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "contactInfo",
-                            "type": "ContactInfo",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "courses",
-                            "type": "Course",
-                            "isArray": true,
-                            "optional": true
-                        },
-                        {
-                            "name": "club",
-                            "type": "Club",
-                            "isArray": false,
-                            "optional": true
-                        }
-                    ]
-                },
-                "foreignModel": {
                     "name": "Course",
                     "path": "/testing/courses",
                     "properties": [
@@ -654,25 +688,79 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "level",
                             "type": "DifficultyLevel",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        },
+                        {
+                            "name": "duration",
+                            "type": "Duration",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "department",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
                         },
                         {
                             "name": "students",
                             "type": "Student",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "professor",
                             "type": "Professor",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        }
+                    ]
+                },
+                "foreignModel": {
+                    "name": "Professor",
+                    "path": "/testing/professors",
+                    "properties": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "contactInfo",
+                            "type": "ContactInfo",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "department",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "email",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "courses",
+                            "type": "Course",
+                            "isArray": true,
+                            "optional": false
+                        },
+                        {
+                            "name": "club",
+                            "type": "Club",
+                            "isArray": false,
+                            "optional": false
                         }
                     ]
                 }
@@ -691,19 +779,31 @@ exports.FrostModels = {
                 "name": "name",
                 "type": "string",
                 "isArray": false,
-                "optional": true
+                "optional": false
+            },
+            {
+                "name": "type",
+                "type": "ClubType",
+                "isArray": false,
+                "optional": false
+            },
+            {
+                "name": "roomId",
+                "type": "string",
+                "isArray": false,
+                "optional": false
             },
             {
                 "name": "members",
                 "type": "Student",
                 "isArray": true,
-                "optional": true
+                "optional": false
             },
             {
                 "name": "supervisor",
                 "type": "Professor",
                 "isArray": false,
-                "optional": true
+                "optional": false
             }
         ],
         "relations": [
@@ -722,6 +822,42 @@ exports.FrostModels = {
                 },
                 "relationType": "one_to_many",
                 "localModel": {
+                    "name": "Club",
+                    "path": "/testing/clubs",
+                    "properties": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "type",
+                            "type": "ClubType",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "roomId",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "members",
+                            "type": "Student",
+                            "isArray": true,
+                            "optional": false
+                        },
+                        {
+                            "name": "supervisor",
+                            "type": "Professor",
+                            "isArray": false,
+                            "optional": false
+                        }
+                    ]
+                },
+                "foreignModel": {
                     "name": "Student",
                     "path": "/testing/students",
                     "properties": [
@@ -729,13 +865,13 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "year",
                             "type": "SchoolYear",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "birthday",
@@ -744,40 +880,22 @@ exports.FrostModels = {
                             "optional": true
                         },
                         {
-                            "name": "courses",
-                            "type": "Course",
-                            "isArray": true,
-                            "optional": true
-                        },
-                        {
-                            "name": "club",
-                            "type": "Club",
-                            "isArray": false,
-                            "optional": true
-                        }
-                    ]
-                },
-                "foreignModel": {
-                    "name": "Club",
-                    "path": "/testing/clubs",
-                    "properties": [
-                        {
-                            "name": "name",
+                            "name": "email",
                             "type": "string",
                             "isArray": false,
                             "optional": true
                         },
                         {
-                            "name": "members",
-                            "type": "Student",
+                            "name": "courses",
+                            "type": "Course",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
-                            "name": "supervisor",
-                            "type": "Professor",
+                            "name": "club",
+                            "type": "Club",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
                         }
                     ]
                 }
@@ -797,48 +915,6 @@ exports.FrostModels = {
                 },
                 "relationType": "one_to_one",
                 "localModel": {
-                    "name": "Professor",
-                    "path": "/testing/professors",
-                    "properties": [
-                        {
-                            "name": "name",
-                            "type": "string",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "year",
-                            "type": "SchoolYear",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "birthday",
-                            "type": "Date",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "contactInfo",
-                            "type": "ContactInfo",
-                            "isArray": false,
-                            "optional": true
-                        },
-                        {
-                            "name": "courses",
-                            "type": "Course",
-                            "isArray": true,
-                            "optional": true
-                        },
-                        {
-                            "name": "club",
-                            "type": "Club",
-                            "isArray": false,
-                            "optional": true
-                        }
-                    ]
-                },
-                "foreignModel": {
                     "name": "Club",
                     "path": "/testing/clubs",
                     "properties": [
@@ -846,19 +922,73 @@ exports.FrostModels = {
                             "name": "name",
                             "type": "string",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        },
+                        {
+                            "name": "type",
+                            "type": "ClubType",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "roomId",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
                         },
                         {
                             "name": "members",
                             "type": "Student",
                             "isArray": true,
-                            "optional": true
+                            "optional": false
                         },
                         {
                             "name": "supervisor",
                             "type": "Professor",
                             "isArray": false,
-                            "optional": true
+                            "optional": false
+                        }
+                    ]
+                },
+                "foreignModel": {
+                    "name": "Professor",
+                    "path": "/testing/professors",
+                    "properties": [
+                        {
+                            "name": "name",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "contactInfo",
+                            "type": "ContactInfo",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "department",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "email",
+                            "type": "string",
+                            "isArray": false,
+                            "optional": false
+                        },
+                        {
+                            "name": "courses",
+                            "type": "Course",
+                            "isArray": true,
+                            "optional": false
+                        },
+                        {
+                            "name": "club",
+                            "type": "Club",
+                            "isArray": false,
+                            "optional": false
                         }
                     ]
                 }
@@ -870,49 +1000,40 @@ exports.FrostModels = {
         ]
     }
 };
-var SampleDelegate = /** @class */ (function (_super) {
-    __extends(SampleDelegate, _super);
-    function SampleDelegate() {
-        return _super.call(this, exports.FrostModels["Sample"]) || this;
-    }
-    return SampleDelegate;
-}(frost_web_client_1.FrostDelegate));
-exports.SampleDelegate = SampleDelegate;
 var StudentDelegate = /** @class */ (function (_super) {
     __extends(StudentDelegate, _super);
-    function StudentDelegate() {
-        return _super.call(this, exports.FrostModels["Student"]) || this;
+    function StudentDelegate(db) {
+        return _super.call(this, exports.FrostModels["Student"], db) || this;
     }
     return StudentDelegate;
 }(frost_web_client_1.FrostDelegate));
 exports.StudentDelegate = StudentDelegate;
 var ProfessorDelegate = /** @class */ (function (_super) {
     __extends(ProfessorDelegate, _super);
-    function ProfessorDelegate() {
-        return _super.call(this, exports.FrostModels["Professor"]) || this;
+    function ProfessorDelegate(db) {
+        return _super.call(this, exports.FrostModels["Professor"], db) || this;
     }
     return ProfessorDelegate;
 }(frost_web_client_1.FrostDelegate));
 exports.ProfessorDelegate = ProfessorDelegate;
 var CourseDelegate = /** @class */ (function (_super) {
     __extends(CourseDelegate, _super);
-    function CourseDelegate() {
-        return _super.call(this, exports.FrostModels["Course"]) || this;
+    function CourseDelegate(db) {
+        return _super.call(this, exports.FrostModels["Course"], db) || this;
     }
     return CourseDelegate;
 }(frost_web_client_1.FrostDelegate));
 exports.CourseDelegate = CourseDelegate;
 var ClubDelegate = /** @class */ (function (_super) {
     __extends(ClubDelegate, _super);
-    function ClubDelegate() {
-        return _super.call(this, exports.FrostModels["Club"]) || this;
+    function ClubDelegate(db) {
+        return _super.call(this, exports.FrostModels["Club"], db) || this;
     }
     return ClubDelegate;
 }(frost_web_client_1.FrostDelegate));
 exports.ClubDelegate = ClubDelegate;
 function getDelegatesMap() {
     return {
-        sample: SampleDelegate,
         student: StudentDelegate,
         professor: ProfessorDelegate,
         course: CourseDelegate,

@@ -139,10 +139,18 @@ relation
         %}
     | %annotate "Relation" %lParen _ args _ %rParen
     {%
-        (data)=>({
+        (data)=>{
+            let name  = null
+            if(typeof data[4]?.[0] === 'string'){
+                name = data[4][0]
+            }else if(data[4]?.[0]?.name === 'name'){
+                name = data[4][0].value
+            }
+            return ({
             type:"relation",
-            name:data[4],
+            name,
         })
+        }
     %}
 
 # #endregion model

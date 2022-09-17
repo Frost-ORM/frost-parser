@@ -6,54 +6,31 @@ export declare enum SchoolYear {
     JUNIOR = "JUNIOR",
     SENIOR = "SENIOR"
 }
-export declare enum ClubType {
-    STEM = "STEM",
-    SPORTS = "SPORTS",
-    CREATIVE = "CREATIVE"
-}
 export declare enum DifficultyLevel {
     INTRODUCTORY = "INTRODUCTORY",
     INTERMEDIATE = "INTERMEDIATE",
     UPPER_INTERMEDIATE = "UPPER_INTERMEDIATE",
     ADVANCED_PLACEMENT = "ADVANCED_PLACEMENT"
 }
+export declare enum Duration {
+    FULL_YEAR = 24,
+    FULL_SEMESTER = 12,
+    HALF_SEMESTER = 6
+}
+export declare enum ClubType {
+    STEM = "STEM",
+    SPORTS = "SPORTS",
+    CREATIVE = "CREATIVE"
+}
 export declare type ContactInfo = {
     phone: string;
     email: string;
 };
-export declare type Sample = FrostObject & {
-    name?: string;
-    year?: SchoolYear;
-    birthday?: Date;
-};
-export declare type SampleIncludeAll = never;
-export declare type SampleRelationsFieldsKeys = never;
-export declare type SampleRelationsFieldsKeysByType = {};
-export declare type SamplePropertiesKeys = "name" | "year" | "birthday";
-export declare type SampleFrostMetadata = {
-    __frost__: {};
-};
-export declare type SampleConnectOptions = ConnectOptions<SampleRelationsFieldsKeysByType>;
-export declare type SampleDisconnectOptions = DisconnectOptions<SampleRelationsFieldsKeysByType>;
-export declare type SampleIncludeOptions = IncludeOptions<SampleRelationsFieldsKeys>;
-export declare type SampleFetchReturnType<I extends SampleIncludeOptions> = With<Sample, SampleIncludeAll, I>;
-export declare type SampleTypes<T extends SampleIncludeOptions = SampleIncludeOptions> = {
-    Model: Sample;
-    IncludeAll: SampleIncludeAll;
-    RelationsFieldsKeys: SampleRelationsFieldsKeys;
-    RelationsFieldsKeysByType: SampleRelationsFieldsKeysByType;
-    PropertiesKeys: SamplePropertiesKeys;
-    FrostMetadata: SampleFrostMetadata;
-    ConnectOptions: SampleConnectOptions;
-    DisconnectOptions: SampleDisconnectOptions;
-    IncludeOptions: SampleIncludeOptions;
-};
 export declare type Student = FrostObject & {
-    name?: string;
-    year?: SchoolYear;
+    name: string;
+    year: SchoolYear;
     birthday?: Date;
-    courses?: Course[];
-    club?: Club;
+    email?: string;
 };
 export declare type StudentIncludeCourse = {
     courses?: Course[];
@@ -73,7 +50,7 @@ export declare type StudentRelationsFieldsKeysByType = {
     one_to_many_master_fields: StudentOneToManyRelationsMasterFieldsKeys;
     one_to_many_slave_fields: StudentOneToManyRelationsSalveFieldsKeys;
 };
-export declare type StudentPropertiesKeys = "name" | "year" | "birthday" | "courses" | "club";
+export declare type StudentPropertiesKeys = "name" | "year" | "birthday" | "email" | "courses" | "club";
 export declare type StudentFrostMetadata = {
     __frost__: {
         'one_to_many': {
@@ -89,6 +66,7 @@ export declare type StudentDisconnectOptions = DisconnectOptions<StudentRelation
 export declare type StudentIncludeOptions = IncludeOptions<StudentRelationsFieldsKeys>;
 export declare type StudentFetchReturnType<I extends StudentIncludeOptions> = With<Student, StudentIncludeAll, I>;
 export declare type StudentTypes<T extends StudentIncludeOptions = StudentIncludeOptions> = {
+    FullModel: Student & StudentIncludeAll & StudentFrostMetadata;
     Model: Student;
     IncludeAll: StudentIncludeAll;
     RelationsFieldsKeys: StudentRelationsFieldsKeys;
@@ -100,12 +78,10 @@ export declare type StudentTypes<T extends StudentIncludeOptions = StudentInclud
     IncludeOptions: StudentIncludeOptions;
 };
 export declare type Professor = FrostObject & {
-    name?: string;
-    year?: SchoolYear;
-    birthday?: Date;
-    contactInfo?: ContactInfo;
-    courses?: Course[];
-    club?: Club;
+    name: string;
+    contactInfo: ContactInfo;
+    department: string;
+    email: string;
 };
 export declare type ProfessorIncludeCourse = {
     courses?: Course[];
@@ -125,11 +101,11 @@ export declare type ProfessorRelationsFieldsKeysByType = {
     one_to_many_slave_fields: ProfessorOneToManyRelationsSalveFieldsKeys;
     one_to_one: ProfessorOneToOneRelationsFieldsKeys;
 };
-export declare type ProfessorPropertiesKeys = "name" | "year" | "birthday" | "contactInfo" | "courses" | "club";
+export declare type ProfessorPropertiesKeys = "name" | "contactInfo" | "department" | "email" | "courses" | "club";
 export declare type ProfessorFrostMetadata = {
     __frost__: {
         'one_to_one': {
-            clubID?: string | null;
+            club?: string | null;
         };
         'one_to_many': {
             courses?: OneToManyMetadata | null;
@@ -141,6 +117,7 @@ export declare type ProfessorDisconnectOptions = DisconnectOptions<ProfessorRela
 export declare type ProfessorIncludeOptions = IncludeOptions<ProfessorRelationsFieldsKeys>;
 export declare type ProfessorFetchReturnType<I extends ProfessorIncludeOptions> = With<Professor, ProfessorIncludeAll, I>;
 export declare type ProfessorTypes<T extends ProfessorIncludeOptions = ProfessorIncludeOptions> = {
+    FullModel: Professor & ProfessorIncludeAll & ProfessorFrostMetadata;
     Model: Professor;
     IncludeAll: ProfessorIncludeAll;
     RelationsFieldsKeys: ProfessorRelationsFieldsKeys;
@@ -152,10 +129,10 @@ export declare type ProfessorTypes<T extends ProfessorIncludeOptions = Professor
     IncludeOptions: ProfessorIncludeOptions;
 };
 export declare type Course = FrostObject & {
-    name?: string;
-    level?: DifficultyLevel;
-    students?: Student[];
-    professor?: Professor;
+    name: string;
+    level: DifficultyLevel;
+    duration: Duration;
+    department: string;
 };
 export declare type CourseIncludeStudent = {
     students?: Student[];
@@ -175,7 +152,7 @@ export declare type CourseRelationsFieldsKeysByType = {
     one_to_many_master_fields: CourseOneToManyRelationsMasterFieldsKeys;
     one_to_many_slave_fields: CourseOneToManyRelationsSalveFieldsKeys;
 };
-export declare type CoursePropertiesKeys = "name" | "level" | "students" | "professor";
+export declare type CoursePropertiesKeys = "name" | "level" | "duration" | "department" | "students" | "professor";
 export declare type CourseFrostMetadata = {
     __frost__: {
         'one_to_many': {
@@ -191,6 +168,7 @@ export declare type CourseDisconnectOptions = DisconnectOptions<CourseRelationsF
 export declare type CourseIncludeOptions = IncludeOptions<CourseRelationsFieldsKeys>;
 export declare type CourseFetchReturnType<I extends CourseIncludeOptions> = With<Course, CourseIncludeAll, I>;
 export declare type CourseTypes<T extends CourseIncludeOptions = CourseIncludeOptions> = {
+    FullModel: Course & CourseIncludeAll & CourseFrostMetadata;
     Model: Course;
     IncludeAll: CourseIncludeAll;
     RelationsFieldsKeys: CourseRelationsFieldsKeys;
@@ -202,9 +180,9 @@ export declare type CourseTypes<T extends CourseIncludeOptions = CourseIncludeOp
     IncludeOptions: CourseIncludeOptions;
 };
 export declare type Club = FrostObject & {
-    name?: string;
-    members?: Student[];
-    supervisor?: Professor;
+    name: string;
+    type: ClubType;
+    roomId: string;
 };
 export declare type ClubIncludeStudent = {
     members?: Student[];
@@ -224,11 +202,11 @@ export declare type ClubRelationsFieldsKeysByType = {
     one_to_many_slave_fields: ClubOneToManyRelationsSalveFieldsKeys;
     one_to_one: ClubOneToOneRelationsFieldsKeys;
 };
-export declare type ClubPropertiesKeys = "name" | "members" | "supervisor";
+export declare type ClubPropertiesKeys = "name" | "type" | "roomId" | "members" | "supervisor";
 export declare type ClubFrostMetadata = {
     __frost__: {
         'one_to_one': {
-            supervisorID?: string | null;
+            supervisor?: string | null;
         };
         'one_to_many': {
             members?: OneToManyMetadata | null;
@@ -240,6 +218,7 @@ export declare type ClubDisconnectOptions = DisconnectOptions<ClubRelationsField
 export declare type ClubIncludeOptions = IncludeOptions<ClubRelationsFieldsKeys>;
 export declare type ClubFetchReturnType<I extends ClubIncludeOptions> = With<Club, ClubIncludeAll, I>;
 export declare type ClubTypes<T extends ClubIncludeOptions = ClubIncludeOptions> = {
+    FullModel: Club & ClubIncludeAll & ClubFrostMetadata;
     Model: Club;
     IncludeAll: ClubIncludeAll;
     RelationsFieldsKeys: ClubRelationsFieldsKeys;
@@ -251,18 +230,6 @@ export declare type ClubTypes<T extends ClubIncludeOptions = ClubIncludeOptions>
     IncludeOptions: ClubIncludeOptions;
 };
 export declare const FrostModels: {
-    Sample: {
-        path: string;
-        name: string;
-        properties: {
-            name: string;
-            type: string;
-            isArray: boolean;
-            optional: boolean;
-        }[];
-        relations: any[];
-        relationsNames: any[];
-    };
     Student: {
         path: string;
         name: string;
@@ -448,23 +415,19 @@ export declare const FrostModels: {
         relationsNames: string[];
     };
 };
-export declare class SampleDelegate extends FrostDelegate<SampleTypes> {
-    constructor();
-}
 export declare class StudentDelegate extends FrostDelegate<StudentTypes> {
-    constructor();
+    constructor(db: any);
 }
 export declare class ProfessorDelegate extends FrostDelegate<ProfessorTypes> {
-    constructor();
+    constructor(db: any);
 }
 export declare class CourseDelegate extends FrostDelegate<CourseTypes> {
-    constructor();
+    constructor(db: any);
 }
 export declare class ClubDelegate extends FrostDelegate<ClubTypes> {
-    constructor();
+    constructor(db: any);
 }
 export declare type DelegatesMap = {
-    sample: typeof SampleDelegate;
     student: typeof StudentDelegate;
     professor: typeof ProfessorDelegate;
     course: typeof CourseDelegate;

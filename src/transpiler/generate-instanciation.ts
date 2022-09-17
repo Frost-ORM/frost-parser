@@ -1,10 +1,11 @@
 import { Model, Relation } from "."
-import { flipRelationSides } from "../validator/validate-models"
 
+export type RelationWithBaseModels =  Relation & {localModel:Omit<Model,'relations'>,foreignModel:Omit<Model,'relations'>,}
 export function generateDelegates(models:Model[],relations:Record<string,Relation>){
+    const {FrostModels,FrostRelations} = generateModelsMap(models,relations)
 return(
 `
-export const FrostModels = ${generateModelsMap(models,relations)}
+export const FrostModels = ${FrostModels}
 
 ${models.map(generateDelegate).join('\n')}
 
@@ -17,6 +18,18 @@ export function getDelegatesMap():DelegatesMap {
         ${models.map(({name})=>`${name.toLowerCase()}: ${name}Delegate`).join(',\n\t\t')}
 	}
 }
+
+export function getFrostModels():typeof FrostModels {
+	return FrostModels;
+}
+
+const FrostRelations = ${FrostRelations}
+
+export function getFrostRelations():typeof FrostRelations {
+	return FrostRelations;
+}
+
+
 `
 )
 }
@@ -25,7 +38,8 @@ function generateModelsMap(models:Model[],relations:Record<string,Relation>){
         model.relations = []
         return [model.name,model]
     }))
-    let final_relations: Record<string,Relation & {localModel:Omit<Model,'relations'>,foreignModel:Omit<Model,'relations'>,}> = {}
+
+    let final_relations: Record<string,RelationWithBaseModels> = {}
     for (const key in relations) {
         let {localModelName,foreignModelName} = relations[key]
         final_relations[key] = {
@@ -46,15 +60,29 @@ function generateModelsMap(models:Model[],relations:Record<string,Relation>){
     }
     //todo modify models
 
-    return JSON.stringify(modelsMap,null,4)
+    return {FrostModels: JSON.stringify(modelsMap,null,4),FrostRelations: JSON.stringify(final_relations,null,4)}
 }
 
 function generateDelegate({name}:Model){
     return `
 export class ${name}Delegate extends FrostDelegate<${name}Types>{
-    constructor() {
-        super(FrostModels["${name}"])
+    constructor(db) {
+        super(FrostModels["${name}"],db)
     }
 }
 `
+}
+
+export function flipRelationSides(relation: RelationWithBaseModels): RelationWithBaseModels {
+	return {
+		...relation,
+
+		localField: relation.foreignField,
+		localModelName: relation.foreignModelName,
+		localModel: relation.foreignModel,
+
+		foreignField: relation.localField,
+		foreignModelName: relation.localModelName,
+		foreignModel: relation.localModel,
+	};
 }

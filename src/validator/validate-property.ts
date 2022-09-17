@@ -17,6 +17,7 @@ export function validateProperty(
 			"decimal",
 			"boolean",
 			"date",
+			"json",
 		].includes(dataType.toLowerCase()) || extraAllowedTypes.includes(dataType);
 
 	if (!typeAllowed) throw ValidatePropertyError.type(dataType);
@@ -66,6 +67,8 @@ export function getDataType(dataType: string) {
 			return "number";
 		case "date":
 			return "Date";
+		case "json":
+			return "Record<any,any>";
 		default:
 			return dataType;
 	}

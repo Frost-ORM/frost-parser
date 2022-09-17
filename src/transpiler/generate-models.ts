@@ -42,10 +42,10 @@ function relationInclude(relation: Relation) {
 	let localModelName = relation.localModelName;
 	let foreignModelName = relation.foreignModelName;
 	let localField = relation.localField;
-
+// TODO ${foreignModelName} & frostmetadata
 	return `
 export type ${localModelName}Include${foreignModelName} =  {
-    ${localField.name}?: ${foreignModelName}${localField.isArray ? "[]" : ""}
+    ${localField.name}?: ${localField.isArray ? `Record<string,${foreignModelName}WithMetadata>` : `${foreignModelName}WithMetadata`}
 }
     `;
 }
@@ -132,7 +132,7 @@ export type ${name}FrostMetadata = {
 		relationsMap.one_to_one
 			? `
         'one_to_one':{
-            ${relationsMap.one_to_one.map((relation) => relation.localField.name + "ID?: string | null").join(",\n")}
+            ${relationsMap.one_to_one.map((relation) => relation.localField.name + "?: string | null").join(",\n")}
         },
             `
 			: ""
@@ -178,7 +178,7 @@ export function generateModelType(model: Model) {
 	const { name, properties, relations } = model;
 	return `
 export type ${name} = FrostObject & {
-    ${properties.map(modelProperty).join(",\n\t")}
+    ${properties.filter(({name})=>relations.findIndex(({localField,foreignField})=> (name === localField.name || name === foreignField.name)) === -1).map(modelProperty).join(",\n\t")}
 }
 
 ${relations.map(relationInclude).join("\n")}
@@ -201,9 +201,13 @@ ${modelIncludeOptions(model)}
 
 ${modelFetchReturnType(model)}
 
-export type ${name}Types<T extends ${name}IncludeOptions = ${name}IncludeOptions>= {
-    FullModel: ${name} & ${name}IncludeAll & ${name}FrostMetadata,
+export type ${name}WithMetadata = ${name} & Partial<${name}FrostMetadata>;
+export type ${name}FullModel = ${name}WithMetadata & ${name}IncludeAll;
+
+export type ${name}Types = {
+    FullModel: ${name}FullModel,
     Model: ${name},
+    ModelWithMetadata: ${name}WithMetadata,
     IncludeAll: ${name}IncludeAll,
     RelationsFieldsKeys: ${name}RelationsFieldsKeys,
     RelationsFieldsKeysByType: ${name}RelationsFieldsKeysByType,
@@ -213,11 +217,9 @@ export type ${name}Types<T extends ${name}IncludeOptions = ${name}IncludeOptions
     DisconnectOptions: ${name}DisconnectOptions,
     IncludeOptions: ${name}IncludeOptions,
 }
-
-//export type ${name}Delegate = FrostDelegate<${name}Types>
 `;
 }
-
+//export type ${name}Delegate = FrostDelegate<${name}Types>
 
 export function generateModelsTypes(models: Model[]) {
 	return models.map(generateModelType).join("\n");
