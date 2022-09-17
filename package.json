@@ -32,6 +32,7 @@
     "build": "tsc",
     "start": "ts-node -P ./tsconfig.json src/index.ts",
     "postinstall": "node dist/postinstall.js",
+    "prepublish": "npm run build",
     "postupdate": "node dist/postinstall.js",
     "transpiler:test": "ts-node -P ./tsconfig.json src/transpiler/examples/index.ts",
     "validator:test": "ts-node -P ./tsconfig.json src/validator/index.ts",
