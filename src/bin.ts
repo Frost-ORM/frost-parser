@@ -43,13 +43,14 @@ const argv = yargs
 
 async function main() {
 	// console.log(argv)
+	let final_default_input = npmConfig?.frost?.schema?.path ?? npmConfig?.frost?.schemaPath ?? DEFAULT_INPUT
 	let file: string =
-		argv.input === DISPLAY_DEFAULT_INPUT ? (npmConfig?.frost?.schema?.path ??npmConfig?.frost?.schemaPath ?? DEFAULT_INPUT): argv.input;
+		argv.input === DISPLAY_DEFAULT_INPUT ? final_default_input: argv.input;
 	if (argv.jsonSchema) {
 		return parseToJsonSchema(file);
 	}
 	let outputPath: string = argv.output === DISPLAY_DEFAULT_OUTPUT ? DEFAULT_OUTPUT : argv.output;
-	if (file !== (npmConfig?.frost?.schemaPath ?? DEFAULT_INPUT) && argv["output-same-location"]) {
+	if (file !== (final_default_input) && argv["output-same-location"]) {
 		outputPath = path.resolve(path.dirname(file), path.basename(file, path.extname(file)));
 	}
 	await compileFile(file, outputPath);

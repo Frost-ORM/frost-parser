@@ -1,6 +1,6 @@
 {
   "name": "@frost-orm/cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CodeGen library that parses FrostSchema to FrostApp Implementation for the desired platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
